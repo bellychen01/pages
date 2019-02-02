@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+		  html,body{
+		    padding: 0;
+		    margin: 0;
+		    overflow: hidden;
+		  }
+		  .conter {
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    width: 100%;
+		    height: 100vh;
+		    padding: 0;
+		    margin: 0;
+		    overflow: hidden;
+		    background-color: darkgray;
+		  }
+		  .calc {
+		    width: 400px;
+		    height: 600px;
+		    background-color: #ddd;
+		    display: flex;
+		    flex-direction: column;
+		    align-items: center;
+		    box-shadow: 5px 5px 25px black;
+		  }
+		  .title {
+		    text-align: center;
+		    width: 100%;
+		    padding-top: 10px;
+		    font-size: 13px;
+		  }
+		  .dis {
+		    width: 100%;
+        flex-grow: 1;
+	      flex-shrink: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: flex-end;
+		  }
+		  .history {
+		    color: gray;
+        font-size: 30px;
+        margin:0 10px;
+        overflow: hidden;
+        width: 100%;
+        text-align: right;
+        box-sizing: border-box;
+		  }
+		  .input {
+		    color: black;
+		    font-size: 30px;
+		    margin:0 10px;
+        overflow: hidden;
+		    width: 100%;
+		    text-align: right;
+		    box-sizing: border-box;
+		  }
+		  .result{
+		    color: gray;
+		    font-size: 15px;
+		    margin:0 10px;
+        overflow: hidden;
+		    width: 100%;
+		    text-align: right;
+		  }
+		  .calcconter {
+		    flex-grow: 0;
+		    flex-shrink: 0;
+		    display: flex;
+		    flex-wrap: wrap;
+		    -webkit-user-select: none;
+		    -moz-user-select: none;
+		    -ms-user-select: none;
+		  }
+		  .btn {
+		    width: 100px;
+		    height: 80px;
+		    box-sizing: border-box;
+		    border: none;
+		    text-align: center;
+		    line-height: 80px;
+		    color: black;
+		    font-size: 40px;
+		    cursor: pointer;
+		  }
+		  .btn:active{
+		    background-color: darkgray;
+		  }
+		  .b-b {
+		    border-bottom: solid 1px gray;
+		  }
+		  .b-r {
+		    border-right: solid 1px gray;
+		  }
+		  .c {
+		    color: orangered;
+		  }
+		  .d:active {
+		    background-color: #d04d00;
+		  }
+		  .d {
+		    color: white;
+		    background: #FF4500;
+		  }
+		  .w2 {
+		    width: 200px;
+		  }
+		</style>
+	</head>
+	<body>
+	  <div class="conter">
+	    <div class="calc">
+	      <div class="title">简单计算器</div>
+	      <div class="dis b-b">
+	        <div class="history" id="history"></div>
+	        <div class="input" id="input">0</div>
+	        <div class="result" id="result">=0</div>
+	      </div>
+	      <div class="calcconter" id="calcconter">
+	        <div class="btn c b-b b-r w2" title="清空">C</div>
+	        <div class="btn b-b b-r" title="退格">←</div>
+	        <div class="btn b-b">÷</div>
+	        
+	        <div class="btn b-b b-r">7</div>
+          <div class="btn b-b b-r">8</div>
+          <div class="btn b-b b-r">9</div>
+          <div class="btn b-b">×</div>
+          
+          <div class="btn b-b b-r">4</div>
+          <div class="btn b-b b-r">5</div>
+          <div class="btn b-b b-r">6</div>
+          <div class="btn b-b">-</div>
+          
+          <div class="btn b-b b-r">1</div>
+          <div class="btn b-b b-r">2</div>
+          <div class="btn b-b b-r">3</div>
+          <div class="btn b-b">+</div>
+          
+          <div class="btn b-r">0</div>
+          <div class="btn b-r">.</div>
+          <div class="btn w2 d">=</div>
+	      </div>
+	    </div>
+	  </div>
+	  <script>
+	    var his = document.getElementById('history');
+	    var inputs = document.getElementById("input");
+	    var result = document.getElementById('result');
+	    var conter = document.getElementById('calcconter');
+	    var opts = ['+','-','×','÷'];
+	    var inputArry = [];
+	    conter.addEventListener('click', function(e){
+	      var clickIn = e.target.innerHTML;
+	      var lastIn = '';
+	      if (inputArry.length>0){
+	        lastIn = inputArry[inputArry.length-1];
+	      }
+	      switch (clickIn){
+	      	case 'C':
+	      	  his.innerHTML = '';
+	      	  clear();
+	      		break;
+	      	case '←':
+            inputArry.pop();
+            inputs.innerHTML = getInputs();
+            result.innerHTML = getResult();
+            break;
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+            inputArry.push(clickIn);
+            inputs.innerHTML = getInputs();
+            result.innerHTML = getResult();
+            break;
+          case '0':
+            if (!checkPreIsOpt()) {
+              inputArry.push(clickIn);
+              inputs.innerHTML = getInputs();
+              result.innerHTML = getResult();
+            }
+            break;
+          case '.':
+            if (lastIn) {
+              var lastOpt = findLastOptIndex();
+              var inputStr = getInputs();
+              var lastSplit = inputStr.substring(lastOpt, inputStr.length -1);
+              if(lastIn !='.' && lastSplit.indexOf('.') == -1) {
+                inputArry.push(clickIn);
+                inputs.innerHTML = getInputs();
+                result.innerHTML = getResult();
+              }
+            } else {
+              inputArry.push('0');
+              inputArry.push('.');
+              inputs.innerHTML = getInputs();
+              result.innerHTML = getResult();
+            }
+            break;
+          case '+':
+          case '-':
+          case '×':
+          case '÷':
+            if (lastIn) {
+              if (lastIn == '+' || lastIn == '-' || lastIn == '×' || lastIn == '÷') {
+                inputArry.pop();
+              }
+              inputArry.push(clickIn);
+              inputs.innerHTML = getInputs();
+              result.innerHTML = getResult();
+            }
+            break;
+          case '=':
+            his.innerHTML = inputs.innerHTML + result.innerHTML;
+            clear();
+            break;
+	      	default:
+	      		break;
+	      }
+	    });
+	    function findLastOptIndex(){
+	      var inputStr = getInputs();
+        var max = 0;
+        for(var opt of opts) {
+          if(inputStr.lastIndexOf(opt)>max){
+            max = inputStr.lastIndexOf(opt)
+          }
+        }
+        return max;
+	    }
+	    function checkPreIsOpt(){
+	      var inputStr = getInputs();
+	      var len = inputStr.length;
+	      for(var opt of opts) {
+          if(inputStr.lastIndexOf(opt) == (len - 2)){
+            return true;
+          }
+        }
+	      return false;
+	    }
+	    function getInputs(){
+	      return inputArry.join('') || '0'
+	    }
+	    function getResult(){
+	      var inputStr = getInputs();
+	      var len = inputStr.length;
+	      for(var opt of opts) {
+	        if(inputStr.lastIndexOf(opt) == (len - 1)){
+	          inputStr = inputStr.substr(0, len-1);
+	          break;
+	        }
+	      }
+	      inputStr = inputStr.replace(/×/g, '*');
+	      inputStr = inputStr.replace(/÷/g, '/');
+	      return '=' + eval(inputStr);
+	    }
+	    function clear() {
+	      inputArry = [];
+	      inputs.innerHTML = '0';
+	      result.innerHTML = '=0';
+	    }
+	  </script>
+	</body>
+</html>
